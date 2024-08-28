@@ -1,1 +1,17 @@
-111 test
+commands:
+  deploy_nomad:
+    description: "Deploy or stop a service on the production Nomad cluster"
+    parameters:
+      service:
+        type: string
+      version:
+        type: string
+      action:  # New parameter to choose between 'deploy' or 'stop'
+        type: enum
+        enum: ["deploy", "stop"]
+        default: "deploy"
+    steps:
+      - run:
+          name: "<< parameters.action | capitalize >> << parameters.service >> (<< parameters.version >>) on the production Nomad cluster"
+          working_directory: system/terraform
+          command: PATH=.:$PATH; ./deploy_nomad.sh << parameters.service >> << parameters.version >> << parameters.action >>
