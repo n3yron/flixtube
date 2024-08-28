@@ -27,6 +27,6 @@ commands:
         default: "deploy"
     steps:
       - run:
-          name: "<< parameters.action | capitalize >> << parameters.service >> (<< parameters.version >>) on the production Nomad cluster"
+          name: "test"
           working_directory: system/terraform
-          command: PATH=.:$PATH; ./deploy_nomad.sh << parameters.service >> << parameters.version >> << parameters.action >>
+          command: ls
