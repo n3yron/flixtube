@@ -1,37 +1,35 @@
 version: 2.1
 
-orbs:
-  aws-cli: circleci/aws-cli@3.1.4
-
 parameters:
-  service:
-    type: string
-    default: "default-service"
-  version:
-    type: string
-    default: "1.0.0"
   action:
     type: enum
-    enum: ["deploy", "stop"]
-    default: "deploy"
+    enum: [build, report]
+    default: build
 
 jobs:
-  deploy-nomad:
+  build:
     docker:
-      - image: circleci/python:3.8  # Choose an appropriate Docker image
+      - image: cimg/base:2023.11
     steps:
       - checkout
-      - deploy_nomad:
-          service: << pipeline.parameters.service >>
-          version: << pipeline.parameters.version >>
-          action: << pipeline.parameters.action >>
+      - run: ./run-tests.sh
+
+  report:
+    docker:
+      - image: cimg/base:2023.11
+    steps:
+      - checkout
+      - run: ./create-report.sh
 
 workflows:
-  deploy-all-services:
+  build:
+    when:
+      equal: [ build, << pipeline.parameters.action >> ]
     jobs:
-      - deploy-nomad:
-          context: flixtube
-          filters:
-            branches:
-              only:
-                - master
+      - build
+
+  report:
+    when:
+      equal: [ report, << pipeline.parameters.action >> ]
+    jobs:
+      - report
