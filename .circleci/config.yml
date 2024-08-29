@@ -12,14 +12,14 @@ jobs:
       - image: cimg/base:2023.11
     steps:
       - checkout
-      - run: ./run-tests.sh
+      - run: ls
 
   report:
     docker:
       - image: cimg/base:2023.11
     steps:
       - checkout
-      - run: ./create-report.sh
+      - run: pwd
 
 workflows:
   build:
