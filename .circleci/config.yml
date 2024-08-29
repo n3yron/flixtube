@@ -3,16 +3,28 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@3.1.4
 
+parameters:
+  service:
+    type: string
+    default: "default-service"
+  version:
+    type: string
+    default: "1.0.0"
+  action:
+    type: enum
+    enum: ["deploy", "stop"]
+    default: "deploy"
+
 jobs:
   deploy-nomad:
     docker:
       - image: circleci/python:3.8  # Choose an appropriate Docker image
     steps:
       - checkout
-      - deploy_nomad:  # Reference the command defined below
-          service: "example-service"
-          version: "1.0.0"
-          action: "deploy"  # Use the new action parameter if necessary
+      - deploy_nomad:
+          service: << pipeline.parameters.service >>
+          version: << pipeline.parameters.version >>
+          action: << pipeline.parameters.action >>
 
 workflows:
   deploy-all-services:
@@ -23,28 +35,3 @@ workflows:
             branches:
               only:
                 - master
-
-commands:
-  deploy_nomad:
-    description: "Deploy or stop a service on the production Nomad cluster"
-    parameters:
-      service:
-        type: string
-      version:
-        type: string
-      action:  # New parameter to choose between 'deploy' or 'stop'
-        type: enum
-        enum: ["deploy", "stop"]
-        default: "deploy"
-    steps:
-      - run:
-          name: "Deploy Nomad Service"
-          working_directory: system/terraform
-          command: |
-            if [ <<parameters.action>> = "deploy" ]; then
-              echo "Deploying <<parameters.service>> version <<parameters.version>>"
-              # Add deployment command here
-            elif [ <<parameters.action>> = "stop" ]; then
-              echo "Stopping <<parameters.service>>"
-              # Add stop command here
-            fi
